@@ -26,11 +26,11 @@ resource "azurerm_service_plan" "appserviceplan" {
   name                = lower("${local.project-prefix}-app-plan")
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  os_type             = "Linux"
+  os_type             = "Windows"
   sku_name            = "Y1"
 }
 
-resource "azurerm_linux_function_app" "api" {
+resource "azurerm_windows_function_app" "api" {
   name                       = lower("${local.project-prefix}-api")
   resource_group_name        = azurerm_resource_group.rg.name
   location                   = azurerm_resource_group.rg.location
@@ -49,10 +49,10 @@ resource "azurerm_linux_function_app" "api" {
 
   site_config {
     application_stack {
-      dotnet_version = "6.0"
+      dotnet_version = 6
     }
     cors {
-        allowed_origins = [azurerm_storage_account.storage.primary_web_endpoint]
+        allowed_origins = [trimsuffix(azurerm_storage_account.storage.primary_web_endpoint,"/")]
     }
   }
 }
@@ -80,7 +80,7 @@ output web-app-settings {
     value = <<OUT
 {
   "ApiSettings": {
-    "BaseUrl": "https://${azurerm_linux_function_app.api.name}.azurewebsites.net"
+    "BaseUrl": "https://${azurerm_windows_function_app.api.name}.azurewebsites.net"
   }
 }
 OUT
@@ -88,5 +88,5 @@ OUT
 
 output web-app-address {
   sensitive =false
-  value = azurerm_storage_account.storage.primary_web_endpoint 
+  value = azurerm_storage_account.storage.primary_web_endpoint
 }
