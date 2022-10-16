@@ -52,7 +52,7 @@ resource "azurerm_linux_function_app" "api" {
       dotnet_version = "6.0"
     }
     cors {
-        allowed_origins = ["*"]
+        allowed_origins = [azurerm_storage_account.storage.primary_web_endpoint]
     }
   }
 }
