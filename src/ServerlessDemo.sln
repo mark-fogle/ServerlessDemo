@@ -9,9 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web", "Web\Web.csproj", "{2
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeatherData.Service", "DataAccess\WeatherData.Service.csproj", "{1CC582D1-21DD-488D-86C6-1F7A44313491}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeatherData.Models", "WeatherData.Models\WeatherData.Models.csproj", "{956410FA-AE55-4061-A65A-FAB560FD3564}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeatherData.Models", "WeatherData.Models\WeatherData.Models.csproj", "{956410FA-AE55-4061-A65A-FAB560FD3564}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api.Client", "Api.Client\Api.Client.csproj", "{6A673CB5-9A78-4134-8099-8CC9E135ADF8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api.Client", "Api.Client\Api.Client.csproj", "{6A673CB5-9A78-4134-8099-8CC9E135ADF8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

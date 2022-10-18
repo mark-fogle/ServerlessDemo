@@ -15,9 +15,9 @@ resource "azurerm_storage_account" "storage" {
   account_kind              = "StorageV2"
   account_replication_type  = "LRS"
   enable_https_traffic_only = true
-  
+
   static_website {
-   index_document = "index.html"
+    index_document     = "index.html"
     error_404_document = "index.html"
   }
 }
@@ -31,19 +31,24 @@ resource "azurerm_service_plan" "appserviceplan" {
 }
 
 resource "azurerm_windows_function_app" "api" {
-  name                       = lower("${local.project-prefix}-api")
-  resource_group_name        = azurerm_resource_group.rg.name
-  location                   = azurerm_resource_group.rg.location
-  service_plan_id            = azurerm_service_plan.appserviceplan.id
-  storage_account_name       = azurerm_storage_account.storage.name
-  storage_account_access_key = azurerm_storage_account.storage.primary_access_key
+  name                        = lower("${local.project-prefix}-api")
+  resource_group_name         = azurerm_resource_group.rg.name
+  location                    = azurerm_resource_group.rg.location
+  service_plan_id             = azurerm_service_plan.appserviceplan.id
+  storage_account_name        = azurerm_storage_account.storage.name
+  storage_account_access_key  = azurerm_storage_account.storage.primary_access_key
   tags                        = {}
   functions_extension_version = "~4"
-  
+
 
 
   app_settings = {
-    "WEBSITE_RUN_FROM_PACKAGE"       = "1"
+    "WEBSITE_RUN_FROM_PACKAGE"                 = "1"
+    "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET" = var.aad-client-secret
+  }
+
+  sticky_settings {
+    app_setting_names       = ["MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"]
   }
 
 
@@ -52,7 +57,7 @@ resource "azurerm_windows_function_app" "api" {
       dotnet_version = 6
     }
     cors {
-        allowed_origins = [trimsuffix(azurerm_storage_account.storage.primary_web_endpoint,"/")]
+      allowed_origins = [trimsuffix(azurerm_storage_account.storage.primary_web_endpoint, "/"), "https://localhost:7143"]
     }
   }
 }
@@ -67,26 +72,45 @@ variable "project-prefix" {
 
 variable "location" {
   description = "The Azure Region in which all resources in this example should be created."
-  default = "EastUS"
+  default     = "EastUS"
+}
+
+variable "aad-client-id" {
+  description = "Azure AD Authentication Client ID"
+}
+
+variable "aad-client-secret" {
+  description = "Azure AD Authentication Client Secret"
+}
+
+variable "aad-scope" {
+  description = "Azure AD Authentication Scope"
+}
+
+variable "aad-tenant-id" {
+  description = "Azure AD Authentication Tenant ID"
 }
 
 locals {
-  project-prefix            = lower(split("_", var.project-prefix)[0])
-  project-shortname         = lower(split("_", var.project-prefix)[1])
+  project-prefix    = lower(split("_", var.project-prefix)[0])
+  project-shortname = lower(split("_", var.project-prefix)[1])
 }
 
-output web-app-settings {
-    sensitive =false
-    value = <<OUT
+output "web-app-settings" {
+  sensitive = false
+  value     = <<OUT
 {
   "ApiSettings": {
-    "BaseUrl": "https://${azurerm_windows_function_app.api.name}.azurewebsites.net"
+    "BaseUrl": "https://${azurerm_windows_function_app.api.name}.azurewebsites.net",
+    "ClientId": "${var.aad-client-id}",
+    "Scope": "${var.aad-scope}",
+    "TenantId": "${var.aad-tenant-id}"
   }
 }
 OUT
 }
 
-output web-app-address {
-  sensitive =false
-  value = azurerm_storage_account.storage.primary_web_endpoint
+output "web-app-address" {
+  sensitive = false
+  value     = azurerm_storage_account.storage.primary_web_endpoint
 }
